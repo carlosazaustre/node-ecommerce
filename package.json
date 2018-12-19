@@ -1,0 +1,33 @@
+{
+  "name": "node-ecommerce",
+  "version": "1.0.0",
+  "description": "Ecommerce app written in Node/Express",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/carlosazaustre/node-ecommerce.git"
+  },
+  "keywords": [
+    "node.js",
+    "express"
+  ],
+  "author": "Carlos Azaustre <cazaustre@gmail.com> (https://carlosazaustre.es)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/carlosazaustre/node-ecommerce/issues"
+  },
+  "homepage": "https://github.com/carlosazaustre/node-ecommerce#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "pug": "^2.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9",
+    "standard": "^12.0.1"
+  }
+}
