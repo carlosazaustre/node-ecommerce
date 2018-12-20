@@ -1,7 +1,15 @@
+const boom = require('boom')
 const Sentry = require('@sentry/node')
 const { config } = require('../../config')
+const isRequestAjaxOrApi = require('../isRequestAjaxOrApi')
 
 Sentry.init({ dsn: `https://${config.sentryDsn}@sentry.io/${config.sentryId}` })
+
+function withErrorStack(err, stack) {
+  if (config.dev) {
+    return { ...err, stack } // Object.assign({}, err, stack)
+  }
+}
 
 function logError (err, req, res, next) {
   Sentry.captureException(err)
@@ -9,31 +17,39 @@ function logError (err, req, res, next) {
   next(err)
 }
 
+function wrapErrors (err, req, res, next) {
+  if (!err.isBoom) {
+    next(boom.badImplementation(err))
+  }
+
+  next(err)
+}
+
 function clientErrorHandler (err, req, res, next) {
-  // catch errors from AJAX request
-  if (req.xhr) {
-    res.status(500).json({ err: err.message })
+  const {
+    output: { statusCode, payload }
+  } = err
+
+  // catch errors from AJAX request or if an error ocurss while streaming
+  if (isRequestAjaxOrApi(req) || res.headersSent) {
+    res.status(statusCode).json(withErrorStack(payload, err.stack))
   } else {
     next(err)
   }
 }
 
 function errorHandler (err, req, res, next) {
-  // catch errors while streaming
-  if (res.headersSent) {
-    next(err)
-  }
+  const {
+    output: { statusCode, payload }
+  } = err
 
-  if (!config.dev) {
-    delete err.stack
-  }
-
-  res.status(err.status || 500)
-  res.render('error', { error: err })
+  res.status(statusCode)
+  res.render('error', withErrorStack(payload, err.stack))
 }
 
 module.exports = {
   logError,
+  wrapErrors,
   clientErrorHandler,
   errorHandler
 }
