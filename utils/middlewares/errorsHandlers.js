@@ -5,7 +5,7 @@ const isRequestAjaxOrApi = require('../isRequestAjaxOrApi')
 
 Sentry.init({ dsn: `https://${config.sentryDsn}@sentry.io/${config.sentryId}` })
 
-function withErrorStack(err, stack) {
+function withErrorStack (err, stack) {
   if (config.dev) {
     return { ...err, stack } // Object.assign({}, err, stack)
   }
