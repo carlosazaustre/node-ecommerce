@@ -1,13 +1,25 @@
 const express = require('express')
 const router = express.Router()
+const passport = require('passport')
 const ProductService = require('../../services/products')
+const validation = require('../../utils/middlewares/validationHandler')
+
+const {
+  productIdSchema,
+  productTagSchema,
+  createProductSchema,
+  updateProductSchema
+} = require('../../utils/schemas/product')
+
+// JWT Strategy
+require('../../utils/auth/strategies/jwt')
 
 const productService = new ProductService()
 
 router.get('/', async function (req, res, next) {
   const { tags } = req.query
   console.log('req', req.query)
-  
+
   try {
     const products = await productService.getProducts({ tags })
 
@@ -36,56 +48,63 @@ router.get('/:productId', async function (req, res, next) {
   }
 })
 
-router.post('/', async function (req, res, next) {
-  const { body: product } = req
-  console.log('req', req.body)
+router.post('/',
+  validation(createProductSchema),
+  async function (req, res, next) {
+    const { body: product } = req
 
-  try {
-    const createdProduct = await productService.createProduct({ product })
+    try {
+      const createdProduct = await productService.createProduct({ product })
 
-    res.status(201).json({
-      data: createdProduct,
-      message: 'product created'
-    })
-  } catch (err) {
-    next(err)
-  }
-})
+      res.status(201).json({
+        data: createdProduct,
+        message: 'product created'
+      })
+    } catch (err) {
+      next(err)
+    }
+  })
 
-router.put('/:productId', async function (req, res, next) {
-  const { productId } = req.params
-  const { body: product } = req
-  console.log('req', req.params, req.body)
+router.put('/:productId',
+  passport.authenticate('jwt', { session: false }),
+  validation({ productId: productIdSchema }, 'params'),
+  validation(updateProductSchema),
+  async function (req, res, next) {
+    const { productId } = req.params
+    const { body: product } = req
+    console.log('req', req.params, req.body)
 
-  try {
-    const updatedProduct = await productService.updateProduct({
-      productId,
-      product
-    })
+    try {
+      const updatedProduct = await productService.updateProduct({
+        productId,
+        product
+      })
 
-    res.status(200).json({
-      data: updatedProduct,
-      message: 'product updated'
-    })
-  } catch (err) {
-    next(err)
-  }
-})
+      res.status(200).json({
+        data: updatedProduct,
+        message: 'product updated'
+      })
+    } catch (err) {
+      next(err)
+    }
+  })
 
-router.delete('/:productId', async function (req, res, next) {
-  const { productId } = req.params
-  console.log('req', req.params)
+router.delete('/:productId', 
+  passport.authenticate('jwt', { session: false }), 
+  async function (req, res, next) {
+    const { productId } = req.params
+    console.log('req', req.params)
 
-  try {
-    const deletedProduct = await productService.deleteProduct({ productId })
+    try {
+      const deletedProduct = await productService.deleteProduct({ productId })
 
-    res.status(200).json({
-      data: deletedProduct,
-      message: 'products deleted'
-    })
-  } catch (err) {
-    next(err)
-  }
-})
+      res.status(200).json({
+        data: deletedProduct,
+        message: 'products deleted'
+      })
+    } catch (err) {
+      next(err)
+    }
+  })
 
 module.exports = router

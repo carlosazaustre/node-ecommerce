@@ -23,13 +23,22 @@
   },
   "homepage": "https://github.com/carlosazaustre/node-ecommerce#readme",
   "dependencies": {
+    "@sentry/node": "^4.4.2",
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "boom": "^7.3.0",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
+    "joi": "^14.3.0",
+    "jsonwebtoken": "^8.4.0",
     "mongodb": "^3.1.10",
+    "passport": "^0.4.0",
+    "passport-http": "^0.3.0",
+    "passport-jwt": "^4.0.0",
     "pug": "^2.0.3"
   },
   "devDependencies": {
+    "chalk": "^2.4.1",
     "nodemon": "^1.18.9",
     "standard": "^12.0.1"
   }
